@@ -42,20 +42,38 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
-// instance methods
+// define instance methods
 UserSchema.methods.generateAuthToken = function() {
   const user = this;
   const access = 'auth';
   // .sign(data, secret)
   const token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
-  user.tokens.concat([{access, token}]);
+  user.tokens = user.tokens.concat({access, token});
 
   // return promise
   return user.save().then(() => {
     return token;
   });
 };
+
+// define static methods
+UserSchema.statics.findByToken = function(token) {
+  const User = this;
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (e) {
+    return Promise.reject(e);
+  }
+
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
+}
 
 // {
 //   email: 'kriskanya@example.com',
@@ -66,8 +84,6 @@ UserSchema.methods.generateAuthToken = function() {
 //   }]
 // }
 
-var User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User', UserSchema);
 
-module.exports = {
-  User
-}
+module.exports = { User };
