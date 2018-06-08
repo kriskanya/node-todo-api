@@ -111,7 +111,7 @@ app.post('/users', (req, res) => {
   });
 });
 
-// authenticate refers to the middleware in middleware/authenticate.js
+// 'authenticate' refers to the middleware in middleware/authenticate.js which authenticates user
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
 });

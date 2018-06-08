@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 // new mongoose.Schema allows us to add methods to the user model, which will
 // help with authentication
@@ -74,6 +75,23 @@ UserSchema.statics.findByToken = function(token) {
     'tokens.access': 'auth'
   });
 }
+
+// runs the code before the event 'save'
+UserSchema.pre('save', function(next) {
+  const user = this;
+
+  if (user.isModified('password')) {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash;
+        next();
+      });
+    });
+  } else {
+    next();
+  }
+  
+});
 
 // {
 //   email: 'kriskanya@example.com',
