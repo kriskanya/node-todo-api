@@ -76,7 +76,28 @@ UserSchema.statics.findByToken = function(token) {
   });
 }
 
-// runs the code before the event 'save'
+UserSchema.statics.findByCredentials = function(email, password) {
+  const user = this;
+
+  return user.findOne({email}).then(user => {
+    if (!user) {
+      return Promise.reject();
+    }
+
+    return new Promise((resolve, reject) => {
+      // use bcrypt.compare to compare string password and hash user.password
+      bcrypt.compare(password, user.password, (err, res) => {
+        if (res) {
+          resolve(user);
+        } else {
+          reject();
+        }
+      });    
+    });
+  });
+};
+
+// runs the code before the event 'save'---middleware
 UserSchema.pre('save', function(next) {
   const user = this;
 
@@ -90,17 +111,7 @@ UserSchema.pre('save', function(next) {
   } else {
     next();
   }
-  
 });
-
-// {
-//   email: 'kriskanya@example.com',
-//   password: 'asdfafaeffdafddf',
-//   token: [{
-//     access: 'auth',
-//     token: 'ooineeteafdadfafd'
-//   }]
-// }
 
 const User = mongoose.model('User', UserSchema);
 
