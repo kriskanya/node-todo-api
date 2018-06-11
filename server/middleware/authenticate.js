@@ -13,7 +13,7 @@ const authenticate = (req, res, next) => {
     next();
   }).catch(e => {
     // 401 === 'unauthorized'
-    res.send(401).send();
+    res.sendStatus(401)
   });
 };
 
