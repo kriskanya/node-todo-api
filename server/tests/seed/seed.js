@@ -37,7 +37,7 @@ const populateTodos = (done) => {
   }).then(() => done());
 }
 
-// need to add to teh DB using 'save()', so that the middleware is used
+// need to add to the DB using 'save()', so that the middleware is used
 const populateUsers = (done) => {
   // remove all records
   User.remove({}).then(() => {
